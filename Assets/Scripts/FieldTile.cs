@@ -2,15 +2,98 @@ using UnityEngine;
 
 public class FieldTile : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    [SerializeField]
+    private GameObject cropPrefab;
+    [SerializeField]
+    private SpriteRenderer sr;
+
+    private Crops curCrop;
+
+    private bool tilled;
+
+    [Header("Sprites")]
+    [SerializeField]
+    private Sprite grassSprite;
+    [SerializeField]
+    private Sprite tilledSprite;
+    [SerializeField]
+    private Sprite wateredTilledSprite;
+
+
+
+    private void Start()
     {
-        
+        //set default to grass sprite
+        sr.sprite = grassSprite;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Interact(PlayerController player)
     {
-        
+        if (!tilled && player.IsHolding("Rake"))
+        {
+            Till();
+        }
+        else if(!HasCrop() && GameManager.Instance.CanPlantCrop())
+        {
+            PlantNewCrop(GameManager.Instance.selectedCrop);
+        }
+        else if (HasCrop() && curCrop.CanHarvest())
+        {
+            curCrop.Harvest();
+        }
+        else if(player.IsHolding("WaterCan"))
+        {
+            Water();
+        }
+
     }
+
+    void PlantNewCrop(CropData crop)
+    {
+        if (!tilled)
+            return;
+
+        curCrop = Instantiate(cropPrefab, transform).GetComponent<Crops>();
+        curCrop.Plant(crop);
+
+        GameManager.Instance.onNewDay += OnNewDay;
+    }
+
+    void Till()
+    {
+        tilled = true;
+        sr.sprite = tilledSprite;
+    }
+
+    void Water()
+    {
+        sr.sprite = wateredTilledSprite;
+
+        if(HasCrop())
+        {
+            curCrop.Water();
+        }
+    }
+
+    void OnNewDay()
+    {
+        if(curCrop == null) //reset tile if crop is harvested or has died
+        {
+            tilled = false;
+            sr.sprite = grassSprite;
+
+            GameManager.Instance.onNewDay -= OnNewDay;
+        }
+        else if (curCrop != null) // if we have crop remove the watered effect on new day
+        {
+            sr.sprite = tilledSprite;
+            curCrop.NewDayCheck();
+        }
+    }
+    bool HasCrop()
+    {
+        return curCrop != null;
+    }
+
 }
