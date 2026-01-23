@@ -36,4 +36,6 @@ public class PickUp : MonoBehaviour
     {
       transform.SetParent(null);
     }
+
+
 }

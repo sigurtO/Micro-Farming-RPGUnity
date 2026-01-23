@@ -55,6 +55,7 @@ public class PlayerController : MonoBehaviour
             {
                 heldPickUp = inRangePickUp;
                 heldPickUp.PickedUp();
+                GameManager.Instance.OnBagPickedUpShowUi(this);
                 inRangePickUp = null; // clear the in range reference
                 Debug.Log("Picked up item");
             }
@@ -74,6 +75,7 @@ public class PlayerController : MonoBehaviour
             if(heldPickUp != null)
             {
                 heldPickUp.Dropped();
+                GameManager.Instance.OnBagPickedUpShowUi(this);
                 heldPickUp = null;
                 Debug.Log("Dropped item");
             }
@@ -139,4 +141,5 @@ public class PlayerController : MonoBehaviour
             dropInput = true;
         }
     }
+
 }

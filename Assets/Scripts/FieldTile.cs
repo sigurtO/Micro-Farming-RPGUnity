@@ -34,11 +34,11 @@ public class FieldTile : MonoBehaviour
         {
             Till();
         }
-        else if(!HasCrop() && GameManager.Instance.CanPlantCrop())
+        else if(!HasCrop() && GameManager.Instance.CanPlantCrop() && player.IsHolding("Bag"))
         {
             PlantNewCrop(GameManager.Instance.selectedCrop);
         }
-        else if (HasCrop() && curCrop.CanHarvest())
+        else if (HasCrop() && curCrop.CanHarvest() && player.IsHolding("Collector"))
         {
             curCrop.Harvest();
         }
@@ -68,6 +68,10 @@ public class FieldTile : MonoBehaviour
 
     void Water()
     {
+
+        if (!tilled) // Don't water untilled soil
+            return;
+
         sr.sprite = wateredTilledSprite;
 
         if(HasCrop())
